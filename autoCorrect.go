@@ -113,31 +113,21 @@ func ReplaceWithAn(input string) string {
 	return output
 }
 
-func FormatPunctuation(text string) string {
-	// Adjusting for spaces before punctuation and ensuring proper space after
-	regul := regexp.MustCompile(`\s*([.,!?;:]+)(\s)`)
-	replacement := func(match []byte) []byte {
-		trimmed := strings.TrimSpace(string(match))
-		if strings.HasSuffix(trimmed, " ") {
-			return []byte(trimmed)
-		} else {
-			return []byte(trimmed + " ")
-		}
-	}
-	formattedText := string(regul.ReplaceAllFunc([]byte(text), replacement))
-	formattedText = regexp.MustCompile(`\s+([.!?]+)`).ReplaceAllString(formattedText, "$1")
+func FormatPunctuation(input string) string{
+	var regul *regexp.Regexp
+	var output string
+	
+	regul = regexp.MustCompile(`\s*([!.?]+)`)
+	output = regul.ReplaceAllString(input, "$1")
 
-	// Specifically adjust for the scenario of space before a comma in the middle of a sentence
-	// This targets a comma that is either followed by a space (and more text) or not at the end of the text.
-	formattedText = regexp.MustCompile(`\s+([,])`).ReplaceAllString(formattedText, "$1 ")
+	regul = regexp.MustCompile(`\s*([.,;:?!]+)\b`)
+	output2 := regul.ReplaceAllString(output, "$1 ")
 
-	// Handling groups of punctuation like "...", "!?", "?!"
-	regul = regexp.MustCompile(`(\.\.\.|\!\?|\?\!)`)
-	formattedText = regul.ReplaceAllStringFunc(formattedText, func(match string) string {
-		return strings.ReplaceAll(match, " ", "")
-	})
+	regul = regexp.MustCompile(`\s*([.,;:?!]+)\s*\b`)
+	output3 := regul.ReplaceAllString(output2, "$1 ")
 
-	return formattedText
+	
+	return output3
 }
 
 func FormatQuotes(text string) string {
